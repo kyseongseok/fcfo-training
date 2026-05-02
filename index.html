@@ -585,16 +585,16 @@
   .upcoming-section { grid-column: 1 / -1; }
 
   .upcoming-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .upcoming-card {
-    background: var(--card);
+    background: var(--bg3);
     border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px 20px;
+    border-radius: var(--radius2);
+    padding: 12px 14px;
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
@@ -1418,42 +1418,45 @@
     <div id="calInlinePanelMount"></div>
   </div>
 
-  <!-- UPCOMING EVENTS -->
-  <div class="upcoming-section">
-    <div class="section-header">
-      <div class="section-title"><span class="icon">🔜</span> 다가오는 훈련</div>
-      <div class="section-badge" id="upcomingCount">0개</div>
-    </div>
-    <div class="upcoming-list" id="upcomingList">
-      <div style="grid-column:1/-1; text-align:center; padding:40px 0; color:var(--text3); font-size:13px;">
-        캘린더를 연결하거나 설정에서 API 키를 입력해주세요
-      </div>
-    </div>
-  </div>
+  <!-- 3컬럼 한 줄: 다가오는 훈련 + 이번주 요약 + 참여현황 -->
+  <div style="grid-column:1/-1; display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; align-items:start;">
 
-      <!-- MINI STATS -->
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
-          <div style="font-size:11px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; font-weight:500;">📌 이번 주 요약</div>
-          <div id="weekSummary" style="color:var(--text2); font-size:13px; line-height:1.8;">
-            일정을 불러오는 중...
-          </div>
-        </div>
-        <div style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-            <div style="font-size:11px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; font-weight:500;">👥 참여 현황</div>
-            <div class="attend-filter-tabs">
-              <button class="af-tab active" onclick="setAttendFilter('season', this)">시즌 전체</button>
-              <button class="af-tab" onclick="setAttendFilter('month', this)">이번 달</button>
-              <button class="af-tab" onclick="setAttendFilter('3month', this)">3개월</button>
-            </div>
-          </div>
-          <div id="attendSummary" style="color:var(--text2); font-size:13px; line-height:1.8;">
-            메모를 추가하면 여기에 표시됩니다
-          </div>
+    <!-- 다가오는 훈련 -->
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <div class="section-title" style="font-size:16px;"><span class="icon">🔜</span> 다가오는 훈련</div>
+        <div class="section-badge" id="upcomingCount">0개</div>
+      </div>
+      <div id="upcomingList" style="display:flex;flex-direction:column;gap:10px;">
+        <div style="text-align:center; padding:20px 0; color:var(--text3); font-size:13px;">
+          캘린더를 연결해주세요
         </div>
       </div>
     </div>
+
+    <!-- 이번 주 요약 -->
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
+      <div style="font-size:11px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; margin-bottom:14px; font-weight:500;">📌 이번 주 요약</div>
+      <div id="weekSummary" style="color:var(--text2); font-size:13px; line-height:1.8;">
+        일정을 불러오는 중...
+      </div>
+    </div>
+
+    <!-- 참여 현황 -->
+    <div style="background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <div style="font-size:11px; color:var(--text3); letter-spacing:2px; text-transform:uppercase; font-weight:500;">👥 참여 현황</div>
+        <div class="attend-filter-tabs">
+          <button class="af-tab active" onclick="setAttendFilter('season', this)">시즌 전체</button>
+          <button class="af-tab" onclick="setAttendFilter('month', this)">이번 달</button>
+          <button class="af-tab" onclick="setAttendFilter('3month', this)">3개월</button>
+        </div>
+      </div>
+      <div id="attendSummary" style="color:var(--text2); font-size:13px; line-height:1.8;">
+        메모를 추가하면 여기에 표시됩니다
+      </div>
+    </div>
+
   </div>
 
   <!-- YOUTUBE SECTION -->
@@ -2023,6 +2026,12 @@ function openInlinePanel(eventId) {
 
   const panel = document.getElementById('calInlinePanel');
   const mount = document.getElementById('calInlinePanelMount');
+  // 이미 열려있으면 닫기 (토글)
+  if (panel.classList.contains('open') && selectedEvent && selectedEvent.id === eventId) {
+    panel.classList.remove('open');
+    selectedEvent = null;
+    return;
+  }
   if (mount) mount.appendChild(panel);
 
   document.getElementById('inlineTitle').textContent = '📋 ' + ev.title;
