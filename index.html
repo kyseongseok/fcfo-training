@@ -712,26 +712,21 @@
   }
 
   .tag-pill {
-    background: var(--bg3);
-    border: 1px solid var(--border);
-    color: var(--text2);
+    background: rgba(255,77,106,0.12);
+    border: 1px solid rgba(255,77,106,0.4);
+    color: var(--red);
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-weight: 500;
+    cursor: default;
+    font-weight: 600;
+    pointer-events: none;
   }
 
   .tag-pill.active {
     background: rgba(255,77,106,0.15);
     border-color: var(--red);
     color: var(--red);
-  }
-
-  .tag-pill:hover:not(.active) {
-    border-color: var(--text2);
-    color: var(--text);
   }
 
   .yt-search-btn {
@@ -1508,22 +1503,22 @@
   <div class="youtube-section">
     <div class="section-header">
       <div class="section-title"><span class="icon">▶</span> 풋살 영상 피드</div>
-      <div class="section-badge">#풋살 #여성풋살 #골때녀</div>
+      
     </div>
 
     <div class="yt-config-bar">
-      <span class="yt-config-label">🔍 검색 태그:</span>
+      <span class="yt-config-label">🔍 검색 태그 (고정):</span>
       <div class="tag-pills" id="tagPills">
-        <div class="tag-pill active" onclick="toggleTag(this, '풋살')">#풋살</div>
-        <div class="tag-pill active" onclick="toggleTag(this, '풋살하이라이트')">#풋살하이라이트</div>
-        <div class="tag-pill active" onclick="toggleTag(this, '풋살스킬')">#풋살스킬</div>
-        <div class="tag-pill active" onclick="toggleTag(this, '여성풋살')">#여성풋살</div>
-        <div class="tag-pill active" onclick="toggleTag(this, '골때녀')">#골때녀</div>
-        <div class="tag-pill active" onclick="toggleTag(this, 'futsal')">#futsal</div>
+        <div class="tag-pill active">#풋살</div>
+        <div class="tag-pill active">#풋살하이라이트</div>
+        <div class="tag-pill active">#풋살스킬</div>
+        <div class="tag-pill active">#여성풋살</div>
+        <div class="tag-pill active">#골때녀</div>
+        <div class="tag-pill active">#futsal</div>
       </div>
       <div class="yt-order-tabs">
         <button class="yt-order-tab active" id="orderViewCount" onclick="setYtOrder('viewCount', this)">🔥 인기순</button>
-        <button class="yt-order-tab" id="orderDate" onclick="setYtOrder('date', this)">🆕 최신순</button>
+        <button class="yt-order-tab" id="orderDate" onclick="setYtOrder('date', this)">🆕 최신순(1년)</button>
       </div>
       <button class="yt-search-btn" onclick="searchYouTube()">▶ 검색</button>
       <button class="yt-refresh-btn" onclick="searchYouTube()" title="새로고침">↻</button>
@@ -2064,7 +2059,10 @@ async function searchYouTube() {
   const query = activeTags.join(' ') + ' 풋살';
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=12&order=${ytOrder}&relevanceLanguage=ko&key=${key}`;
+    const oneYearAgo = new Date();
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    const publishedAfter = ytOrder === 'date' ? `&publishedAfter=${oneYearAgo.toISOString()}` : '';
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=12&order=${ytOrder}&relevanceLanguage=ko&regionCode=KR${publishedAfter}&key=${key}`;
     const res = await fetch(url);
     const data = await res.json();
 
