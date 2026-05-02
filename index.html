@@ -1758,10 +1758,7 @@ async function addAttendee(eventId) {
   showToast('저장 중...', '');
   try {
     await sheetsWrite({ action: 'add', eventId, eventTitle: ev?.title||'', name });
-    await loadMemosFromSheets();
-    updateUpcoming();
-    updateStats();
-    showToast(`✓ ${name} 참여 추가됨`, 'success');
+    showSaveModal(name);
   } catch(e) {
     showToast('❌ 저장 실패: ' + e.message, 'error');
   }
@@ -2141,11 +2138,7 @@ async function addAttendeeInline() {
   showToast('저장 중...', '');
   try {
     await sheetsWrite({ action: 'add', eventId: selectedEvent.id, eventTitle: selectedEvent.title||'', name });
-    await loadMemosFromSheets();
-    renderInlineAttendees(selectedEvent.id);
-    updateUpcoming();
-    updateStats();
-    showToast(`✓ ${name} 참여 추가됨`, 'success');
+    showSaveModal(name);
   } catch(e) {
     showToast('❌ 저장 실패: ' + e.message, 'error');
   }
