@@ -572,25 +572,7 @@
   .add-btn:hover { background: #7de8f0; transform: translateY(-1px); }
   .add-btn:active { transform: translateY(0); }
 
-  .sync-btn {
-    width: 100%;
-    margin-top: 14px;
-    background: transparent;
-    border: 1px solid var(--accent2);
-    color: var(--accent);
-    padding: 9px;
-    border-radius: var(--radius2);
-    font-size: 12px;
-    font-family: 'Noto Sans KR', sans-serif;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    letter-spacing: 0.5px;
-  }
+
 
   .sync-btn:hover {
     background: rgba(94,200,212,0.12);
@@ -1767,9 +1749,7 @@ function renderEventDetail() {
         <input class="attend-input" id="attendInput" placeholder="이름 입력..." onkeydown="if(event.key==='Enter')addAttendee('${ev.id}')">
         <button class="add-btn" onclick="addAttendee('${ev.id}')">+ 참여</button>
       </div>
-      <button class="sync-btn" id="syncBtn-${ev.id}" onclick="syncToCalendar('${ev.id}')">
-        <span class="sync-icon">↻</span> 구글 캘린더에 메모 동기화
-      </button>
+
     </div>
   `;
   updateStats();
@@ -1812,63 +1792,9 @@ async function removeAttendee(eventId, index) {
 }
 
 // ── CALENDAR SYNC ──
-async function syncToCalendar(eventId) {
-  const btn = document.getElementById(`syncBtn-${eventId}`);
-  if (!config.calApiKey) {
-    showToast('⚠ 설정에서 Google Calendar API 키를 입력해주세요', 'error');
-    return;
-  }
 
-  btn.classList.add('syncing');
-  btn.querySelector('span').textContent = '↻ 동기화 중...';
 
-  const memoData = memos[eventId] || [];
-  const ev = events.find(e => e.id === eventId);
-  const noteText = memoData.length > 0
-    ? `[참여 확인 ${memoData.length}명]\n${memoData.map(m => `✓ ${m.name} (${m.time})`).join('\n')}`
-    : '[참여 확인 없음]';
 
-  // Google Calendar API patch (description 업데이트)
-  try {
-    const res = await fetch(
-      `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(config.calId)}/events/${eventId}`,
-      {
-        method: 'PATCH',
-        headers: {
-          'Authorization': `Bearer ${config.accessToken || ''}`,
-          'Content-Type': 'application/json',
-          'X-Goog-Api-Key': config.calApiKey,
-        },
-        body: JSON.stringify({ description: noteText })
-      }
-    );
-
-    if (res.ok) {
-      showToast('✓ 캘린더에 메모가 동기화되었습니다!', 'success');
-      if (ev) ev.description = noteText;
-    } else {
-      // OAuth 필요한 경우
-      showToast('⚠ 쓰기 권한이 필요합니다 (OAuth 로그인 필요)', 'error');
-      showGoogleOAuthHint();
-    }
-  } catch(e) {
-    showToast('⚠ 동기화 실패: ' + e.message, 'error');
-  }
-
-  btn.classList.remove('syncing');
-  btn.querySelector('span').textContent = '↻';
-  btn.lastChild.textContent = ' 구글 캘린더에 메모 동기화';
-}
-
-function showGoogleOAuthHint() {
-  const hint = document.createElement('div');
-  hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);background:var(--card2);border:1px solid var(--accent);padding:24px;border-radius:12px;z-index:300;max-width:360px;text-align:center;font-size:13px;line-height:1.7;color:var(--text2);';
-  hint.innerHTML = `<div style="font-size:20px;margin-bottom:12px;">🔐</div>
-    <div style="font-weight:700;color:var(--text);margin-bottom:8px;">캘린더 쓰기 권한 필요</div>
-    <div>Google Calendar에 메모를 동기화하려면 OAuth 로그인이 필요합니다.<br>이삭이 매니저(MCP) 방식으로 연결 시 자동으로 처리됩니다.</div>
-    <button onclick="this.parentNode.remove()" style="margin-top:16px;background:var(--accent);border:none;color:var(--bg);padding:8px 24px;border-radius:8px;cursor:pointer;font-weight:700;">확인</button>`;
-  document.body.appendChild(hint);
-}
 
 // ── FETCH CALENDAR (Google API) ──
 async function fetchCalendarEvents() {
