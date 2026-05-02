@@ -2024,30 +2024,13 @@ async function searchYouTube() {
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
     const publishedAfter = ytOrder === 'date' ? `&publishedAfter=${oneYearAgo.toISOString()}` : '';
 
-    // 태그별 OR 검색: 각 태그를 따로 검색 후 합치기
-    // 태그를 2개씩 묶어서 3번 요청 (API 할당량 절약)
-    const tagGroups = [
-      ['풋살', '여성풋살'],
-      ['풋살하이라이트', '골때녀'],
-      ['풋살스킬', 'futsal'],
-    ];
-
-    const allItems = [];
-    const seenIds = new Set();
-
-    for (const group of tagGroups) {
-      const q = group.join(' OR ');
-      const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&maxResults=8&order=${ytOrder}&relevanceLanguage=ko&regionCode=KR${publishedAfter}&key=${key}`;
-      const res = await fetch(url);
-      const data = await res.json();
-      if (data.error) throw new Error(data.error.message);
-      (data.items || []).forEach(item => {
-        if (!seenIds.has(item.id.videoId)) {
-          seenIds.add(item.id.videoId);
-          allItems.push(item);
-        }
-      });
-    }
+    // 1번 요청으로 OR 조건 검색 (할당량 절약)
+    const q = '풋살 OR 여성풋살 OR 골때녀 OR 풋살하이라이트 OR 풋살스킬';
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(q)}&type=video&maxResults=20&order=${ytOrder}&relevanceLanguage=ko&regionCode=KR${publishedAfter}&key=${key}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) throw new Error(data.error.message);
+    const allItems = data.items || [];
 
     // 인기순이면 viewCount 기준 재정렬 (publishedAt 날짜 기준), 최신순이면 날짜 정렬
     if (ytOrder === 'date') {
@@ -2423,10 +2406,7 @@ function init() {
     updateStats();
     updateUpcoming();
   });
-  // 유튜브 자동 검색
-  setTimeout(() => {
-    if (config.ytApiKey) searchYouTube();
-  }, 1000);
+  // 유튜브 자동 검색 비활성화 (버튼 누를 때만 검색)
 
   // API 키 기본값 적용 후 바로 캘린더 로드
   fetchCalendarEvents();
