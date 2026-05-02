@@ -1604,6 +1604,10 @@
 <script>
 // ── STATE ──
 let config = JSON.parse(localStorage.getItem('futsal_config') || '{}');
+// 기본값 하드코딩 (팀 공용)
+if (!config.calApiKey)  config.calApiKey  = 'AIzaSyDmQKH3KffBBLSXaq0zcHgpzIuaYNIDnUw';
+if (!config.calId)      config.calId      = 'fcfosince2024@gmail.com';
+if (!config.ytApiKey)   config.ytApiKey   = 'AIzaSyDmQKH3KffBBLSXaq0zcHgpzIuaYNIDnUw';
 let events = JSON.parse(localStorage.getItem('futsal_events') || '[]');
 let memos  = {}; // Google Sheets로 관리
 let currentDate = new Date();
@@ -2397,12 +2401,13 @@ function init() {
     updateStats();
     updateUpcoming();
   });
+  // 유튜브 자동 검색
+  setTimeout(() => {
+    if (config.ytApiKey) searchYouTube();
+  }, 1000);
 
-  if (config.calApiKey && config.calId) {
-    fetchCalendarEvents();
-  } else {
-    showToast('ℹ 데모 데이터로 표시 중 · 설정에서 API 연결하세요', '');
-  }
+  // API 키 기본값 적용 후 바로 캘린더 로드
+  fetchCalendarEvents();
 }
 
 init();
