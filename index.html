@@ -1148,6 +1148,62 @@
     transform: rotate(90deg);
   }
 
+
+  /* ── 저장완료 모달 ── */
+  .save-modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(4px);
+    z-index: 400;
+    align-items: center;
+    justify-content: center;
+  }
+  .save-modal-backdrop.open { display: flex; }
+
+  .save-modal {
+    background: var(--card2);
+    border: 1px solid rgba(94,200,212,0.5);
+    border-radius: var(--radius);
+    padding: 32px 40px;
+    text-align: center;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+    animation: popIn 0.25s cubic-bezier(0.34,1.56,0.64,1);
+  }
+
+  @keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+
+  .save-modal-icon { font-size: 40px; margin-bottom: 12px; }
+  .save-modal-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .save-modal-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 20px;
+  }
+  .save-modal-btn {
+    background: var(--accent);
+    border: none;
+    color: var(--bg);
+    padding: 10px 32px;
+    border-radius: var(--radius2);
+    font-size: 14px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .save-modal-btn:hover { background: #7de8f0; }
+
   /* ── ATTEND FILTER TABS ── */
   .attend-filter-tabs {
     display: flex;
@@ -2070,8 +2126,8 @@ function renderInlineAttendees(eventId) {
   list.innerHTML = memoData.map((m, i) =>
     `<div class="attendee-chip">
       <span class="chip-name">✓ ${m.name}</span>
-      <span class="chip-time">${m.time}</span>
-      <button class="remove-btn" onclick="removeAttendee('${eventId}', ${i});renderInlineAttendees('${eventId}')">✕</button>
+      <span class="chip-time">${m.time || ''}</span>
+      <button class="remove-btn" title="참여 취소" onclick="removeAttendee('${eventId}', ${i})">✕</button>
     </div>`
   ).join('') || '<div style="color:var(--text3);font-size:12px;text-align:center;padding:8px 0;">참여 확인한 사람이 없어요</div>';
 }
@@ -2259,6 +2315,18 @@ async function sheetsWrite(params) {
   await new Promise(r => setTimeout(r, 1500));
 }
 
+
+// ── 저장완료 모달 ──
+function showSaveModal(name) {
+  document.getElementById('saveModalSub').textContent = `${name} 참여가 기록되었습니다 🦕`;
+  document.getElementById('saveModal').classList.add('open');
+}
+
+function confirmSaveModal() {
+  document.getElementById('saveModal').classList.remove('open');
+  location.reload();
+}
+
 // ── GOOGLE SHEETS MEMO SYNC ──
 async function loadMemosFromSheets() {
   try {
@@ -2296,6 +2364,17 @@ function init() {
 
 init();
 </script>
+
+
+<!-- 저장완료 모달 -->
+<div class="save-modal-backdrop" id="saveModal">
+  <div class="save-modal">
+    <div class="save-modal-icon">✅</div>
+    <div class="save-modal-title">참여 저장 완료!</div>
+    <div class="save-modal-sub" id="saveModalSub">참여가 기록되었습니다</div>
+    <button class="save-modal-btn" onclick="confirmSaveModal()">확인</button>
+  </div>
+</div>
 
 <!-- FLOATING MASCOT -->
 <div class="mascot-float" id="mascotFloat">
