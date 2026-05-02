@@ -1115,6 +1115,62 @@
     transform: scale(1.4);
   }
 
+
+  /* ── YT ORDER TABS ── */
+  .yt-order-tabs {
+    display: flex;
+    gap: 2px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 2px;
+  }
+
+  .yt-order-tab {
+    background: none;
+    border: none;
+    color: var(--text3);
+    font-size: 11px;
+    font-family: 'Noto Sans KR', sans-serif;
+    padding: 4px 12px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+    font-weight: 500;
+  }
+
+  .yt-order-tab.active {
+    background: var(--red);
+    color: #fff;
+    font-weight: 700;
+  }
+
+  .yt-order-tab:hover:not(.active) { color: var(--text2); }
+
+  /* ── YT REFRESH BTN ── */
+  .yt-refresh-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius2);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .yt-refresh-btn:hover {
+    border-color: var(--red);
+    color: var(--red);
+    transform: rotate(90deg);
+  }
+
   /* ── ATTEND FILTER TABS ── */
   .attend-filter-tabs {
     display: flex;
@@ -1465,7 +1521,12 @@
         <div class="tag-pill active" onclick="toggleTag(this, '골때녀')">#골때녀</div>
         <div class="tag-pill active" onclick="toggleTag(this, 'futsal')">#futsal</div>
       </div>
+      <div class="yt-order-tabs">
+        <button class="yt-order-tab active" id="orderViewCount" onclick="setYtOrder('viewCount', this)">🔥 인기순</button>
+        <button class="yt-order-tab" id="orderDate" onclick="setYtOrder('date', this)">🆕 최신순</button>
+      </div>
       <button class="yt-search-btn" onclick="searchYouTube()">▶ 검색</button>
+      <button class="yt-refresh-btn" onclick="searchYouTube()" title="새로고침">↻</button>
     </div>
 
     <div class="yt-grid" id="ytGrid">
@@ -1544,10 +1605,12 @@
 // ── STATE ──
 let config = JSON.parse(localStorage.getItem('futsal_config') || '{}');
 let events = JSON.parse(localStorage.getItem('futsal_events') || '[]');
-let memos  = JSON.parse(localStorage.getItem('futsal_memos') || '{}');
+let memos  = {}; // Google Sheets로 관리
 let currentDate = new Date();
 let selectedEvent = null;
 let activeTags = ['풋살','풋살하이라이트','풋살스킬','여성풋살','골때녀','futsal'];
+let ytOrder = 'viewCount'; // 'viewCount' | 'date'
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyNanD9OEMSmsevqgdXT1AHdc53zTWXYM2JOP7gTUNdJGlSd7_sYBSE1m7fMaS68HtL/exec';
 
 // Apply saved config to inputs
 function loadConfig() {
@@ -1713,29 +1776,42 @@ function renderEventDetail() {
   updateStats();
 }
 
-function addAttendee(eventId) {
+async function addAttendee(eventId) {
   const input = document.getElementById('attendInput');
   const name = input.value.trim();
   if (!name) return;
-
-  if (!memos[eventId]) memos[eventId] = [];
-  const now = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
-  memos[eventId].push({ name, time: now });
-  localStorage.setItem('futsal_memos', JSON.stringify(memos));
+  const ev = events.find(e => e.id === eventId);
   input.value = '';
-  renderEventDetail();
-  updateUpcoming();
-  showToast(`✓ ${name} 참여 추가됨`, 'success');
+  showToast('저장 중...', '');
+  try {
+    const url = `${SHEETS_URL}?action=add&eventId=${encodeURIComponent(eventId)}&eventTitle=${encodeURIComponent(ev?.title||'')}&name=${encodeURIComponent(name)}`;
+    await fetch(url);
+    await loadMemosFromSheets();
+    renderEventDetail();
+    updateUpcoming();
+    updateStats();
+    showToast(`✓ ${name} 참여 추가됨`, 'success');
+  } catch(e) {
+    showToast('❌ 저장 실패: ' + e.message, 'error');
+  }
 }
 
-function removeAttendee(eventId, index) {
+async function removeAttendee(eventId, index) {
   if (!memos[eventId]) return;
   const name = memos[eventId][index]?.name;
-  memos[eventId].splice(index, 1);
-  localStorage.setItem('futsal_memos', JSON.stringify(memos));
-  renderEventDetail();
-  updateUpcoming();
-  if (name) showToast(`${name} 제거됨`);
+  if (!name) return;
+  showToast('삭제 중...', '');
+  try {
+    const url = `${SHEETS_URL}?action=remove&eventId=${encodeURIComponent(eventId)}&name=${encodeURIComponent(name)}`;
+    await fetch(url);
+    await loadMemosFromSheets();
+    renderEventDetail();
+    updateUpcoming();
+    updateStats();
+    showToast(`${name} 제거됨`);
+  } catch(e) {
+    showToast('❌ 삭제 실패: ' + e.message, 'error');
+  }
 }
 
 // ── CALENDAR SYNC ──
@@ -1954,6 +2030,12 @@ function toggleTag(el, tag) {
   }
 }
 
+function setYtOrder(order, btn) {
+  ytOrder = order;
+  document.querySelectorAll('.yt-order-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
 async function searchYouTube() {
   const key = config.ytApiKey;
   if (!key) {
@@ -1978,7 +2060,7 @@ async function searchYouTube() {
   const query = activeTags.join(' ') + ' 풋살';
 
   try {
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=12&order=viewCount&relevanceLanguage=ko&key=${key}`;
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=12&order=${ytOrder}&relevanceLanguage=ko&key=${key}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -2126,20 +2208,24 @@ function renderInlineAttendees(eventId) {
   ).join('') || '<div style="color:var(--text3);font-size:12px;text-align:center;padding:8px 0;">참여 확인한 사람이 없어요</div>';
 }
 
-function addAttendeeInline() {
+async function addAttendeeInline() {
   if (!selectedEvent) return;
   const input = document.getElementById('inlineAttendInput');
   const name = input.value.trim();
   if (!name) return;
-  if (!memos[selectedEvent.id]) memos[selectedEvent.id] = [];
-  const now = new Date().toLocaleTimeString('ko-KR', { hour:'2-digit', minute:'2-digit' });
-  memos[selectedEvent.id].push({ name, time: now });
-  localStorage.setItem('futsal_memos', JSON.stringify(memos));
   input.value = '';
-  renderInlineAttendees(selectedEvent.id);
-  updateUpcoming();
-  updateStats();
-  showToast(`✓ ${name} 참여 추가됨`, 'success');
+  showToast('저장 중...', '');
+  try {
+    const url = `${SHEETS_URL}?action=add&eventId=${encodeURIComponent(selectedEvent.id)}&eventTitle=${encodeURIComponent(selectedEvent.title||'')}&name=${encodeURIComponent(name)}`;
+    await fetch(url);
+    await loadMemosFromSheets();
+    renderInlineAttendees(selectedEvent.id);
+    updateUpcoming();
+    updateStats();
+    showToast(`✓ ${name} 참여 추가됨`, 'success');
+  } catch(e) {
+    showToast('❌ 저장 실패: ' + e.message, 'error');
+  }
 }
 
 // ── MASCOT FLOATING ──
@@ -2281,11 +2367,36 @@ selectEvent = function(id) {
   window.addEventListener('resize', () => {});
 })();
 
+
+// ── GOOGLE SHEETS MEMO SYNC ──
+async function loadMemosFromSheets() {
+  try {
+    const res = await fetch(`${SHEETS_URL}?action=get`);
+    const data = await res.json();
+    if (!data.ok) return;
+
+    // Rebuild memos object from sheet rows
+    memos = {};
+    data.data.forEach(row => {
+      if (!row.eventId) return;
+      if (!memos[row.eventId]) memos[row.eventId] = [];
+      memos[row.eventId].push({ name: row.name, time: row.time, date: row.date });
+    });
+  } catch(e) {
+    console.warn('시트 로드 실패, 로컬 데이터 사용:', e.message);
+  }
+}
+
 // ── INIT ──
 function init() {
   loadDemoData();
   renderCalendar();
   updateUpcoming();
+  // 시트에서 참여 데이터 로드
+  loadMemosFromSheets().then(() => {
+    updateStats();
+    updateUpcoming();
+  });
 
   if (config.calApiKey && config.calId) {
     fetchCalendarEvents();
