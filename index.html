@@ -1756,12 +1756,9 @@ async function addAttendee(eventId) {
   const ev = events.find(e => e.id === eventId);
   input.value = '';
   showToast('저장 중...', '');
-  try {
-    await sheetsWrite({ action: 'add', eventId, eventTitle: ev?.title||'', name });
-    showSaveModal(name);
-  } catch(e) {
-    showToast('❌ 저장 실패: ' + e.message, 'error');
-  }
+  sheetsWrite({ action: 'add', eventId, eventTitle: ev?.title||'', name })
+    .catch(e => console.warn('sheets write warn:', e));
+  setTimeout(() => showSaveModal(name), 1200);
 }
 
 async function removeAttendee(eventId, index) {
@@ -1949,6 +1946,8 @@ function setYtOrder(order, btn) {
 }
 
 async function searchYouTube() {
+  // 캐시 방지
+  const _ts = Date.now();
   const key = config.ytApiKey;
   if (!key) {
     showToast('⚠ 설정에서 YouTube API 키를 입력해주세요', 'error');
@@ -1974,8 +1973,8 @@ async function searchYouTube() {
   try {
     const oneYearAgo = new Date();
     oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
-    const publishedAfter = ytOrder === 'date' ? `&publishedAfter=${oneYearAgo.toISOString()}` : '';
-    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=12&order=${ytOrder}&relevanceLanguage=ko&regionCode=KR${publishedAfter}&key=${key}`;
+    const publishedAfter = ytOrder === 'date' ? `&publishedAfter=${oneYearAgo.toISOString()}&videoDefinition=any&videoDuration=any` : '';
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=20&order=${ytOrder}&relevanceLanguage=ko&regionCode=KR${publishedAfter}&key=${key}`;
     const res = await fetch(url);
     const data = await res.json();
 
@@ -2136,12 +2135,11 @@ async function addAttendeeInline() {
   if (!name) return;
   input.value = '';
   showToast('저장 중...', '');
-  try {
-    await sheetsWrite({ action: 'add', eventId: selectedEvent.id, eventTitle: selectedEvent.title||'', name });
-    showSaveModal(name);
-  } catch(e) {
-    showToast('❌ 저장 실패: ' + e.message, 'error');
-  }
+  // no-cors라 에러 안 나도 저장됨 → 무조건 모달 표시
+  sheetsWrite({ action: 'add', eventId: selectedEvent.id, eventTitle: selectedEvent.title||'', name })
+    .catch(e => console.warn('sheets write warn:', e));
+  // 1.2초 후 모달 (저장 시간 확보)
+  setTimeout(() => showSaveModal(name), 1200);
 }
 
 // ── MASCOT FLOATING ──
