@@ -1181,20 +1181,7 @@
   .af-tab:hover:not(.active) { color: var(--text2); }
 
   /* ── EVENT DETAIL SLIDE PANEL ── */
-  #eventDetailPanel {
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
 
-  #eventDetailPanel.hidden {
-    opacity: 0;
-    transform: translateX(-12px);
-    pointer-events: none;
-  }
-
-  #eventDetailPanel.visible {
-    opacity: 1;
-    transform: translateX(0);
-  }
 
   /* ── INLINE EVENT EXPAND (below calendar) ── */
   .cal-event-inline {
@@ -1443,18 +1430,6 @@
       </div>
     </div>
   </div>
-
-  <!-- EVENT DETAIL / MEMO -->
-  <div style="grid-column: 1 / -1;">
-    <div style="display:grid; grid-template-columns:1fr 340px; gap:24px; align-items:start;" id="detailGrid">
-      
-      <!-- DETAIL PLACEHOLDER -->
-      <div class="event-panel" id="eventDetailPanel">
-        <div class="event-panel-empty">
-          <div class="empty-icon">📋</div>
-          <p>캘린더에서 일정을 클릭하면<br>상세 정보와 참여 메모를 추가할 수 있어요</p>
-        </div>
-      </div>
 
       <!-- MINI STATS -->
       <div style="display:flex; flex-direction:column; gap:14px;">
@@ -1711,49 +1686,9 @@ function handleCellClick(dateStr) {
 function selectEvent(id) {
   selectedEvent = events.find(ev => ev.id === id);
   if (!selectedEvent) return;
-  renderEventDetail();
-  document.getElementById('eventDetailPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-function renderEventDetail() {
-  const ev = selectedEvent;
-  if (!ev) return;
 
-  const memoData = memos[ev.id] || [];
-  const dateStr = ev.start ? new Date(ev.start).toLocaleDateString('ko-KR', { year:'numeric', month:'long', day:'numeric', weekday:'long' }) : '';
-  const timeStr = ev.start && ev.start.includes('T')
-    ? new Date(ev.start).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) + (ev.end && ev.end.includes('T') ? ' ~ ' + new Date(ev.end).toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' }) : '')
-    : '종일';
-
-  const attendeesList = memoData.map((m, i) =>
-    `<div class="attendee-chip">
-      <span class="chip-name">✓ ${m.name}</span>
-      <span class="chip-time">${m.time}</span>
-      <button class="remove-btn" onclick="removeAttendee('${ev.id}', ${i})">✕</button>
-    </div>`
-  ).join('');
-
-  document.getElementById('eventDetailPanel').innerHTML = `
-    <div class="event-detail-title">📋 ${ev.title}</div>
-    <div class="event-meta">
-      <div class="event-meta-row"><span class="event-meta-icon">📅</span><span class="event-meta-text">${dateStr}</span></div>
-      <div class="event-meta-row"><span class="event-meta-icon">⏰</span><span class="event-meta-text">${timeStr}</span></div>
-      ${ev.location ? `<div class="event-meta-row"><span class="event-meta-icon">📍</span><span class="event-meta-text">${ev.location}</span></div>` : ''}
-      ${ev.description ? `<div class="event-meta-row"><span class="event-meta-icon">📝</span><span class="event-meta-text">${ev.description}</span></div>` : ''}
-    </div>
-    <div class="divider"></div>
-    <div class="attend-section">
-      <div class="attend-label">👥 참여 확인 (${memoData.length}명)</div>
-      <div class="attendees-list" id="attendeesList-${ev.id}">${attendeesList || '<div style="color:var(--text3);font-size:12px;text-align:center;padding:12px 0;">아직 참여 확인한 사람이 없어요</div>'}</div>
-      <div class="add-attend-row">
-        <input class="attend-input" id="attendInput" placeholder="이름 입력..." onkeydown="if(event.key==='Enter')addAttendee('${ev.id}')">
-        <button class="add-btn" onclick="addAttendee('${ev.id}')">+ 참여</button>
-      </div>
-
-    </div>
-  `;
-  updateStats();
-}
 
 async function addAttendee(eventId) {
   const input = document.getElementById('attendInput');
@@ -1765,7 +1700,6 @@ async function addAttendee(eventId) {
   try {
     await sheetsWrite({ action: 'add', eventId, eventTitle: ev?.title||'', name });
     await loadMemosFromSheets();
-    renderEventDetail();
     updateUpcoming();
     updateStats();
     showToast(`✓ ${name} 참여 추가됨`, 'success');
@@ -1782,7 +1716,6 @@ async function removeAttendee(eventId, index) {
   try {
     await sheetsWrite({ action: 'remove', eventId, name });
     await loadMemosFromSheets();
-    renderEventDetail();
     updateUpcoming();
     updateStats();
     showToast(`${name} 제거됨`);
@@ -2228,7 +2161,7 @@ saveConfig = function() {
   _origSaveConfig();
 };
 
-// Override selectEvent to also open inline panel
+// selectEvent → open inline panel
 const _origSelectEvent = selectEvent;
 selectEvent = function(id) {
   _origSelectEvent(id);
