@@ -2406,7 +2406,10 @@ function init() {
     updateStats();
     updateUpcoming();
   });
-  // 유튜브 자동 검색 비활성화 (버튼 누를 때만 검색)
+  // 유튜브 자동 검색 (페이지 로드 시)
+  setTimeout(() => {
+    if (config.ytApiKey) searchYouTube();
+  }, 1500);
 
   // API 키 기본값 적용 후 바로 캘린더 로드
   fetchCalendarEvents();
