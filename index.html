@@ -1307,19 +1307,27 @@
 
   @media (max-width: 600px) {
     .header-nav {
-      position: static;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       transform: none;
-      order: -1;
       width: 100%;
       justify-content: center;
+      border-radius: 0;
+      border-left: none;
+      border-right: none;
+      border-top: none;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,10,15,0.97);
+      backdrop-filter: blur(12px);
+      z-index: 200;
+      padding: 8px 16px;
     }
     header {
-      flex-wrap: wrap;
-      height: auto;
-      padding: 8px 12px;
-      gap: 8px;
+      margin-top: 52px;
     }
-    .nav-tab { font-size: 12px; padding: 5px 14px; }
+    .nav-tab { font-size: 13px; padding: 6px 20px; }
   }
 
   /* ── ATTEND FILTER TABS ── */
@@ -1659,9 +1667,24 @@
   .scorer-goals span { font-size: 11px; color: var(--text3); font-weight: 400; }
 
   @media (max-width: 600px) {
-    .history-match { grid-template-columns: 40px 1fr 32px auto; gap: 6px; }
+    .history-match {
+      grid-template-columns: 38px 1fr 28px;
+      gap: 6px;
+    }
     .hm-note { display: none; }
     .history-stat-row { grid-template-columns: repeat(3,1fr); }
+    .history-inner { padding: 16px 14px; }
+    .history-inner > div[style*="grid-template-columns:1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+    .history-year-num { font-size: 22px; }
+    .history-year-head { gap: 8px; }
+    .scorer-row { gap: 8px; }
+    .scorer-bar-wrap { flex: 1; }
+    .scorer-name { font-size: 13px; }
+    .hm-vs { font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hm-round { font-size: 10px; }
+    .hm-score { font-size: 12px; }
   }
 
 </style>
