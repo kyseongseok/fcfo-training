@@ -1445,6 +1445,165 @@
     50% { transform: translateY(-4px); }
   }
 
+
+  /* ── HISTORY SECTION ── */
+  .history-section {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+
+  .history-inner {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 24px;
+  }
+
+  .history-stat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .history-scard {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 12px;
+    text-align: center;
+  }
+
+  .history-scard-n {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .history-scard-l {
+    font-size: 11px;
+    color: var(--text3);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .history-trophy-banner {
+    background: rgba(255,209,102,0.06);
+    border: 1px solid rgba(255,209,102,0.25);
+    border-radius: var(--radius2);
+    padding: 12px 16px;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .history-section-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text3);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+
+  .history-year-block { margin-bottom: 22px; }
+
+  .history-year-head {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+
+  .history-year-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--text);
+    line-height: 1;
+    min-width: 60px;
+    letter-spacing: 1px;
+  }
+
+  .history-badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .hb-out { background: rgba(96,96,117,0.2); color: var(--text2); border: 1px solid var(--border); }
+  .hb-r16 { background: rgba(94,200,212,0.1); color: var(--accent); border: 1px solid rgba(94,200,212,0.3); }
+  .hb-3rd { background: rgba(255,209,102,0.12); color: var(--yellow); border: 1px solid rgba(255,209,102,0.35); }
+
+  .history-matches { display: flex; flex-direction: column; gap: 5px; }
+
+  .history-match {
+    display: grid;
+    grid-template-columns: 48px 1fr 36px auto;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 8px 12px;
+    transition: background 0.15s;
+  }
+
+  .history-match:hover { background: var(--card2); }
+  .history-match.final { background: rgba(255,209,102,0.06); border-color: rgba(255,209,102,0.3); }
+
+  .hm-round { font-size: 11px; color: var(--text3); }
+  .hm-vs { font-size: 13px; color: var(--text2); }
+  .hm-score { font-size: 13px; font-weight: 700; text-align: right; }
+  .hm-w { color: var(--accent); }
+  .hm-l { color: var(--red); }
+  .hm-note { font-size: 11px; color: var(--text3); white-space: nowrap; }
+  .hm-note.gold { color: var(--yellow); }
+
+  .history-divider { height: 1px; background: var(--border); margin: 4px 0 20px; }
+
+  .scorer-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: var(--radius2);
+    padding: 10px 14px;
+    margin-bottom: 6px;
+    transition: background 0.15s;
+  }
+
+  .scorer-row:hover { background: var(--card2); }
+
+  .scorer-rank { font-size: 13px; font-weight: 700; min-width: 20px; text-align: center; }
+  .sr1 { color: var(--yellow); }
+  .sr2 { color: var(--text3); }
+
+  .scorer-name { font-size: 14px; color: var(--text); flex: 1; font-weight: 500; }
+
+  .scorer-bar-wrap {
+    flex: 2;
+    height: 5px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+  }
+
+  .scorer-bar { height: 100%; border-radius: 3px; background: var(--accent); }
+
+  .scorer-goals { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 36px; text-align: right; }
+  .scorer-goals span { font-size: 11px; color: var(--text3); font-weight: 400; }
+
+  @media (max-width: 600px) {
+    .history-match { grid-template-columns: 40px 1fr 32px auto; gap: 6px; }
+    .hm-note { display: none; }
+    .history-stat-row { grid-template-columns: repeat(3,1fr); }
+  }
+
 </style>
 </head>
 <body>
@@ -1572,6 +1731,176 @@
     </div>
 
   </div>
+
+
+  <!-- HISTORY SECTION -->
+  <div class="history-section">
+    <div class="section-header">
+      <div class="section-title"><span class="icon">🏆</span> MATCH HISTORY</div>
+      <div class="section-badge">한국기자협회 여성풋살대회</div>
+    </div>
+
+    <div class="history-inner">
+
+      <div class="history-stat-row">
+        <div class="history-scard">
+          <div class="history-scard-n">9</div>
+          <div class="history-scard-l">총 경기</div>
+        </div>
+        <div class="history-scard">
+          <div class="history-scard-n" style="color:var(--accent)">6</div>
+          <div class="history-scard-l">승</div>
+        </div>
+        <div class="history-scard">
+          <div class="history-scard-n" style="color:var(--red)">3</div>
+          <div class="history-scard-l">패</div>
+        </div>
+      </div>
+
+      <div class="history-trophy-banner">
+        <span style="font-size:20px">🏆</span>
+        <div>
+          <div style="font-size:13px;color:var(--yellow);font-weight:700">2026 최종 3위 — 팀 역대 최고 성적</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px">3위전 vs. 한겨레 PK 3:1</div>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
+
+        <!-- 경기 기록 -->
+        <div>
+          <div class="history-section-label">연도별 경기 기록</div>
+
+          <div class="history-year-block">
+            <div class="history-year-head">
+              <div class="history-year-num">2024</div>
+              <div class="history-badge hb-out">32강 탈락</div>
+            </div>
+            <div class="history-matches">
+              <div class="history-match">
+                <span class="hm-round">32강</span>
+                <span class="hm-vs">vs. MBC</span>
+                <span class="hm-score hm-l">패</span>
+                <span class="hm-note">0:0 PK 1:2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="history-divider"></div>
+
+          <div class="history-year-block">
+            <div class="history-year-head">
+              <div class="history-year-num">2025</div>
+              <div class="history-badge hb-r16">16강 탈락</div>
+            </div>
+            <div class="history-matches">
+              <div class="history-match">
+                <span class="hm-round">32강</span>
+                <span class="hm-vs">vs. 비즈워치</span>
+                <span class="hm-score hm-w">승</span>
+                <span class="hm-note">2:0 홍승희, 유혜림</span>
+              </div>
+              <div class="history-match">
+                <span class="hm-round">16강</span>
+                <span class="hm-vs">vs. 오마이뉴스</span>
+                <span class="hm-score hm-l">패</span>
+                <span class="hm-note">0:0 PK 0:2</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="history-divider"></div>
+
+          <div class="history-year-block">
+            <div class="history-year-head">
+              <div class="history-year-num" style="color:var(--yellow)">2026</div>
+              <div class="history-badge hb-3rd">🥉 최종 3위</div>
+            </div>
+            <div class="history-matches">
+              <div class="history-match">
+                <span class="hm-round">예선</span>
+                <span class="hm-vs">vs. 쿠키뉴스</span>
+                <span class="hm-score hm-w">승</span>
+                <span class="hm-note">2:0 홍승희 2</span>
+              </div>
+              <div class="history-match">
+                <span class="hm-round">32강</span>
+                <span class="hm-vs">vs. 채널A</span>
+                <span class="hm-score hm-w">승</span>
+                <span class="hm-note">1:1 PK 2:1 홍승희</span>
+              </div>
+              <div class="history-match">
+                <span class="hm-round">16강</span>
+                <span class="hm-vs">vs. SBS Biz</span>
+                <span class="hm-score hm-w">승</span>
+                <span class="hm-note">4:1 홍승희 3, 강승연 1</span>
+              </div>
+              <div class="history-match">
+                <span class="hm-round">8강</span>
+                <span class="hm-vs">vs. 연합뉴스TV</span>
+                <span class="hm-score hm-w">승</span>
+                <span class="hm-note">2:1 홍승희 2</span>
+              </div>
+              <div class="history-match">
+                <span class="hm-round">4강</span>
+                <span class="hm-vs">vs. 오마이뉴스</span>
+                <span class="hm-score hm-l">패</span>
+                <span class="hm-note">0:1</span>
+              </div>
+              <div class="history-match final">
+                <span class="hm-round" style="color:var(--yellow)">3·4위전</span>
+                <span class="hm-vs" style="color:var(--yellow);font-weight:700">vs. 한겨레</span>
+                <span class="hm-score hm-w">승</span>
+                <span class="hm-note gold">PK 3:1 · 3위 확정</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 득점 랭킹 -->
+        <div>
+          <div class="history-section-label">역대 득점 랭킹</div>
+          <div class="scorer-row">
+            <div class="scorer-rank sr1">1</div>
+            <div class="scorer-name">홍승희</div>
+            <div class="scorer-bar-wrap"><div class="scorer-bar" style="width:100%"></div></div>
+            <div class="scorer-goals">9 <span>골</span></div>
+          </div>
+          <div class="scorer-row">
+            <div class="scorer-rank sr2">2</div>
+            <div class="scorer-name">강승연</div>
+            <div class="scorer-bar-wrap"><div class="scorer-bar" style="width:11%;opacity:0.5"></div></div>
+            <div class="scorer-goals">1 <span>골</span></div>
+          </div>
+          <div class="scorer-row">
+            <div class="scorer-rank sr2">2</div>
+            <div class="scorer-name">유혜림</div>
+            <div class="scorer-bar-wrap"><div class="scorer-bar" style="width:11%;opacity:0.5"></div></div>
+            <div class="scorer-goals">1 <span>골</span></div>
+          </div>
+
+          <div style="margin-top:24px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;">
+            <div class="history-section-label" style="margin-bottom:12px">총 득점</div>
+            <div style="font-family:'Bebas Neue',sans-serif;font-size:48px;color:var(--accent);line-height:1;">11</div>
+            <div style="font-size:12px;color:var(--text3);margin-top:4px;">9경기 총 득점 · 실점 미집계</div>
+          </div>
+
+          <div style="margin-top:12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius2);padding:16px;">
+            <div class="history-section-label" style="margin-bottom:12px">에이스</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="width:40px;height:40px;border-radius:50%;background:rgba(94,200,212,0.15);border:1px solid rgba(94,200,212,0.4);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:var(--accent)">홍</div>
+              <div>
+                <div style="font-size:14px;font-weight:700;color:var(--text)">홍승희</div>
+                <div style="font-size:11px;color:var(--text3)">9골 · 팀 득점의 82%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
 
   <!-- YOUTUBE SECTION -->
   <div class="youtube-section">
